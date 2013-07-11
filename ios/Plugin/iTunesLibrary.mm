@@ -530,7 +530,7 @@ iTunesLibrary::show( lua_State *L )
 // ----------------------------------------------------------------------------
 
 CORONA_EXPORT
-int luaopen_plugin_iTunes( lua_State *L )
+int luaopen_CoronaProvider_plugin_iTunes( lua_State *L )
 {
 	return Corona::iTunesLibrary::Open( L );
 }

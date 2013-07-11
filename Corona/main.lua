@@ -1,5 +1,5 @@
 -- Require the iTunes library
-local iTunes = require( "plugin.iTunes" )
+local iTunes = require( "CoronaProvider.plugin.iTunes" )
 local widget = require( "widget" )
 
 -- Hide the status bar
