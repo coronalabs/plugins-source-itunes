@@ -198,7 +198,7 @@ iTunesLibrary::play( lua_State *L )
 
 	// Set the song 
 	NSString *luaSongURL = [NSString stringWithUTF8String:lua_tostring( L, -1 )];
-    NSURL *songURL = [NSURL URLWithString:luaSongURL];
+	NSURL *songURL = [NSURL URLWithString:luaSongURL];
 	NSError *error;
 	
 	// If the audioPlayer object is valid, stop any current playback
@@ -371,7 +371,7 @@ iTunesLibrary::show( lua_State *L )
 @implementation AudioDelegate
 
 - (void) audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL) flag
-{    
+{
 	// Stop the player
 	[player stop];
 	
@@ -411,9 +411,9 @@ iTunesLibrary::show( lua_State *L )
 		
 		// Our iterator index
 		int i = 1;
-        
+
 		// Loop through the chosen items in the media collection
-        for ( MPMediaItem *song in mediaItemCollection.items )
+		for ( MPMediaItem *song in mediaItemCollection.items )
 		{
 			// Create a table for this item
 			lua_newtable( self.L );
