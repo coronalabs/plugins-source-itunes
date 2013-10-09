@@ -119,7 +119,7 @@ iTunesLibrary::Open( lua_State *L )
 }
 
 //
-static AudioDelegate *audioDelagate;
+static AudioDelegate *audioDelegate;
 static MediaDelegate *mediaDelegate;
 static AVAudioPlayer *audioPlayer;
 
@@ -130,8 +130,8 @@ iTunesLibrary::Finalizer( lua_State *L )
 	delete library;
 	
 	// Release the audioDelegate
-	[audioDelagate release];
-	audioDelagate = nil;
+	[audioDelegate release];
+	audioDelegate = nil;
 	
 	// Release the mediaDelegate
 	[mediaDelegate release];
@@ -178,16 +178,15 @@ int
 iTunesLibrary::play( lua_State *L )
 {
 	// Free the refrence
-	lua_unref( audioDelagate.L, audioDelagate.callbackRef );
+	lua_unref( audioDelegate.L, audioDelegate.callbackRef );
 	
 	// Set the callback reference to 0
-	audioDelagate.callbackRef = 0;
+	audioDelegate.callbackRef = 0;
 	
 	// Set the delegates callbackRef to reference the onComplete function (if it exists)
 	if ( lua_isfunction( L, -1 ) )
 	{
-		//printf( "Function at index \n" );
-		audioDelagate.callbackRef = luaL_ref( L, LUA_REGISTRYINDEX );
+		audioDelegate.callbackRef = luaL_ref( L, LUA_REGISTRYINDEX );
 	}
 	
 	// Throw error if song url was not passed to the function
@@ -209,7 +208,7 @@ iTunesLibrary::play( lua_State *L )
 		
 	// Initialize the audio player
 	audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:songURL error:&error];
-	audioPlayer.delegate = audioDelagate;
+	audioPlayer.delegate = audioDelegate;
 	
 	// Play the selected item
 	[audioPlayer prepareToPlay];
@@ -308,10 +307,10 @@ iTunesLibrary::show( lua_State *L )
 		
 		UIViewController *appViewController = library.GetAppViewController();
 		mediaDelegate = [[MediaDelegate alloc] init];
-		audioDelagate = [[AudioDelegate alloc] init];
+		audioDelegate = [[AudioDelegate alloc] init];
 		
 		// Assign the lua state so we can access it from within the audio delegate
-		audioDelagate.L = L;
+		audioDelegate.L = L;
 		
 		// Assign the lua state so we can access it from within the media delegate
 		mediaDelegate.L = L;
@@ -415,57 +414,63 @@ iTunesLibrary::show( lua_State *L )
 		// Loop through the chosen items in the media collection
 		for ( MPMediaItem *song in mediaItemCollection.items )
 		{
-			// Create a table for this item
-			lua_newtable( self.L );
-			
-			// Song URL
+			// The song url
 			NSURL *songURL = [song valueForProperty:MPMediaItemPropertyAssetURL];
-			NSString *songUrl = [songURL absoluteString];
-			lua_pushstring( self.L, [songUrl UTF8String] );
-			lua_setfield( self.L, -2, "url" );
-						
-			// Album Artist
-			NSString *albumArtist = [song valueForProperty:MPMediaItemPropertyAlbumArtist];
-			lua_pushstring( self.L, [albumArtist UTF8String] );
-			lua_setfield( self.L, -2, "albumArtist" );
 			
-			// Song title
-			NSString *title = [song valueForProperty:MPMediaItemPropertyTitle];
-			lua_pushstring( self.L, [title UTF8String] );
-			lua_setfield( self.L, -2, "songTitle" );
-			
-			// Album Title
-			NSString *albumTitle = [song valueForProperty:MPMediaItemPropertyAlbumTitle];
-			lua_pushstring( self.L, [albumTitle UTF8String] );
-			lua_setfield( self.L, -2, "albumTitle" );
-			
-			// Performing Artist
-			NSString *performingArtist = [song valueForProperty:MPMediaItemPropertyArtist];
-			lua_pushstring( self.L, [performingArtist UTF8String] );
-			lua_setfield( self.L, -2, "performingArtist" );
-			
-			// Composer
-			NSString *composer = [song valueForProperty:MPMediaItemPropertyComposer];
-			lua_pushstring( self.L, [composer UTF8String] );
-			lua_setfield( self.L, -2, "composer" );
-			
-			// Genre
-			NSString *genre = [song valueForProperty:MPMediaItemPropertyGenre];
-			lua_pushstring( self.L, [genre UTF8String] );
-			lua_setfield( self.L, -2, "genre" );
-			
-			// Lyrics
-			NSString *lyrics = [song valueForProperty:MPMediaItemPropertyLyrics];
-			lua_pushstring( self.L, [lyrics UTF8String] );
-			lua_setfield( self.L, -2, "lyrics" );
-			
-			// Podcast Title
-			NSString *podcastTitle = [song valueForProperty:MPMediaItemPropertyPodcastTitle];
-			lua_pushstring( self.L, [podcastTitle UTF8String] );
-			lua_setfield( self.L, -2, "podcastTitle" );
-			
-			lua_rawseti( self.L, -2, i );
-			i++;
+			// If the song is on the device, it will return a url and we will add this song to the callback table
+			if ( NULL != songURL )
+			{
+				// Create a table for this item
+				lua_newtable( self.L );
+				
+				// Song URL
+				NSString *songUrl = [songURL absoluteString];
+				lua_pushstring( self.L, [songUrl UTF8String] );
+				lua_setfield( self.L, -2, "url" );
+							
+				// Album Artist
+				NSString *albumArtist = [song valueForProperty:MPMediaItemPropertyAlbumArtist];
+				lua_pushstring( self.L, [albumArtist UTF8String] );
+				lua_setfield( self.L, -2, "albumArtist" );
+				
+				// Song title
+				NSString *title = [song valueForProperty:MPMediaItemPropertyTitle];
+				lua_pushstring( self.L, [title UTF8String] );
+				lua_setfield( self.L, -2, "songTitle" );
+				
+				// Album Title
+				NSString *albumTitle = [song valueForProperty:MPMediaItemPropertyAlbumTitle];
+				lua_pushstring( self.L, [albumTitle UTF8String] );
+				lua_setfield( self.L, -2, "albumTitle" );
+				
+				// Performing Artist
+				NSString *performingArtist = [song valueForProperty:MPMediaItemPropertyArtist];
+				lua_pushstring( self.L, [performingArtist UTF8String] );
+				lua_setfield( self.L, -2, "performingArtist" );
+				
+				// Composer
+				NSString *composer = [song valueForProperty:MPMediaItemPropertyComposer];
+				lua_pushstring( self.L, [composer UTF8String] );
+				lua_setfield( self.L, -2, "composer" );
+				
+				// Genre
+				NSString *genre = [song valueForProperty:MPMediaItemPropertyGenre];
+				lua_pushstring( self.L, [genre UTF8String] );
+				lua_setfield( self.L, -2, "genre" );
+				
+				// Lyrics
+				NSString *lyrics = [song valueForProperty:MPMediaItemPropertyLyrics];
+				lua_pushstring( self.L, [lyrics UTF8String] );
+				lua_setfield( self.L, -2, "lyrics" );
+				
+				// Podcast Title
+				NSString *podcastTitle = [song valueForProperty:MPMediaItemPropertyPodcastTitle];
+				lua_pushstring( self.L, [podcastTitle UTF8String] );
+				lua_setfield( self.L, -2, "podcastTitle" );
+				
+				lua_rawseti( self.L, -2, i );
+				i++;
+			}
 		}
 				
 		// Set event.data
