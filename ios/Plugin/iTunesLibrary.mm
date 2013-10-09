@@ -75,6 +75,11 @@ class iTunesLibrary
 		UIViewController *fAppViewController;
 };
 
+// Objective-c members, not part of C++ class.
+static AudioDelegate *audioDelegate;
+static MediaDelegate *mediaDelegate;
+static AVAudioPlayer *audioPlayer;
+
 // ----------------------------------------------------------------------------
 
 // This corresponds to the name of the library, e.g. [Lua] require "plugin.library"
@@ -117,11 +122,6 @@ iTunesLibrary::Open( lua_State *L )
 
 	return 1;
 }
-
-//
-static AudioDelegate *audioDelegate;
-static MediaDelegate *mediaDelegate;
-static AVAudioPlayer *audioPlayer;
 
 int
 iTunesLibrary::Finalizer( lua_State *L )
@@ -201,7 +201,7 @@ iTunesLibrary::play( lua_State *L )
 	NSError *error;
 	
 	// If the audioPlayer object is valid, stop any current playback
-	if ( audioPlayer )
+	if ( nil != audioPlayer )
 	{
 		[audioPlayer stop];
 	}
@@ -209,6 +209,13 @@ iTunesLibrary::play( lua_State *L )
 	// Initialize the audio player
 	audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:songURL error:&error];
 	audioPlayer.delegate = audioDelegate;
+	
+	// Report the error message to lua
+	if ( error )
+	{
+		NSString *theError = [error localizedDescription];
+		luaL_error( L, [theError UTF8String] );
+	}
 	
 	// Play the selected item
 	[audioPlayer prepareToPlay];
@@ -276,20 +283,6 @@ iTunesLibrary::isPlaying( lua_State *L )
 
 
 // Function to show the media picker
-static int
-showMediaPicker( UIViewController *controller, MediaDelegate *delegate, bool allowPickingMultipleItems, NSString *promptTitle )
-{
-	MPMediaPickerController *mediaPicker = [[MPMediaPickerController alloc] initWithMediaTypes: MPMediaTypeAnyAudio];
-	mediaPicker.delegate = delegate;
-	mediaPicker.allowsPickingMultipleItems = allowPickingMultipleItems;
-	mediaPicker.prompt = promptTitle;
-	[controller presentModalViewController:mediaPicker animated:YES];
-	[mediaPicker release];
-	
-	return 0;
-}
-
-
 int
 iTunesLibrary::show( lua_State *L )
 {
@@ -348,11 +341,15 @@ iTunesLibrary::show( lua_State *L )
 		
 		// Show the media picker
 		MPMediaPickerController *mediaPicker = [[MPMediaPickerController alloc] initWithMediaTypes: MPMediaTypeAnyAudio];
-		mediaPicker.delegate = mediaDelegate;
-		mediaPicker.allowsPickingMultipleItems = allowsPickingMultipleItems;
-		mediaPicker.prompt = promptTitle;
-		[appViewController presentModalViewController:mediaPicker animated:YES];
-		[mediaPicker release];
+		if ( nil != mediaPicker )
+		{
+			mediaPicker.delegate = mediaDelegate;
+			mediaPicker.allowsPickingMultipleItems = allowsPickingMultipleItems;
+			mediaPicker.showsCloudItems = NO;
+			mediaPicker.prompt = promptTitle;
+			[appViewController presentModalViewController:mediaPicker animated:YES];
+			[mediaPicker release];
+		}
 	}
 #endif
 	
@@ -380,10 +377,20 @@ iTunesLibrary::show( lua_State *L )
 		// Push the onComplete function onto the stack
 		lua_rawgeti( self.L, LUA_REGISTRYINDEX, self.callbackRef );
 	
-		// TODO: Do we want to pass anything back here?
+		// Create event table
+		lua_newtable( self.L );
+		
+		// Set event.name property
+		lua_pushstring( self.L, "itunes" ); // Value ( name )
+		lua_setfield( self.L, -2, "name" ); // Key
+		
+		// Set event.type
+		const char *eventName = "completed";
+		lua_pushstring( self.L, eventName ); // Value ( function type name )
+		lua_setfield( self.L, -2, "type" ); // Key
 		
 		// Call the onComplete function
-		Corona::Lua::DoCall( self.L, 0, 0 ); // Remember < L, num arguments, num results
+		Corona::Lua::DoCall( self.L, 1, 1 ); // Remember < L, num arguments, num results
 	}
 }
 
@@ -418,7 +425,7 @@ iTunesLibrary::show( lua_State *L )
 			NSURL *songURL = [song valueForProperty:MPMediaItemPropertyAssetURL];
 			
 			// If the song is on the device, it will return a url and we will add this song to the callback table
-			if ( NULL != songURL )
+			if ( nil != songURL )
 			{
 				// Create a table for this item
 				lua_newtable( self.L );
@@ -427,7 +434,7 @@ iTunesLibrary::show( lua_State *L )
 				NSString *songUrl = [songURL absoluteString];
 				lua_pushstring( self.L, [songUrl UTF8String] );
 				lua_setfield( self.L, -2, "url" );
-							
+											
 				// Album Artist
 				NSString *albumArtist = [song valueForProperty:MPMediaItemPropertyAlbumArtist];
 				lua_pushstring( self.L, [albumArtist UTF8String] );
@@ -447,7 +454,7 @@ iTunesLibrary::show( lua_State *L )
 				NSString *performingArtist = [song valueForProperty:MPMediaItemPropertyArtist];
 				lua_pushstring( self.L, [performingArtist UTF8String] );
 				lua_setfield( self.L, -2, "performingArtist" );
-				
+								
 				// Composer
 				NSString *composer = [song valueForProperty:MPMediaItemPropertyComposer];
 				lua_pushstring( self.L, [composer UTF8String] );
@@ -457,6 +464,21 @@ iTunesLibrary::show( lua_State *L )
 				NSString *genre = [song valueForProperty:MPMediaItemPropertyGenre];
 				lua_pushstring( self.L, [genre UTF8String] );
 				lua_setfield( self.L, -2, "genre" );
+				
+				// Duration
+				NSNumber *duration = [song valueForProperty:MPMediaItemPropertyPlaybackDuration];
+				lua_pushnumber( self.L, [duration intValue] );
+				lua_setfield( self.L, -2, "duration" );
+								
+				// Rating
+				NSNumber *rating = [song valueForProperty:MPMediaItemPropertyRating];
+				lua_pushnumber( self.L, [rating intValue] );
+				lua_setfield( self.L, -2, "rating" );
+				
+				// Play count
+				NSNumber *playCount = [song valueForProperty:MPMediaItemPropertyPlayCount];
+				lua_pushnumber( self.L, [playCount intValue] );
+				lua_setfield( self.L, -2, "playCount" );
 				
 				// Lyrics
 				NSString *lyrics = [song valueForProperty:MPMediaItemPropertyLyrics];
@@ -535,7 +557,7 @@ iTunesLibrary::show( lua_State *L )
 // ----------------------------------------------------------------------------
 
 CORONA_EXPORT
-int luaopen_CoronaProvider_plugin_iTunes( lua_State *L )
+int luaopen_plugin_iTunes( lua_State *L )
 {
 	return Corona::iTunesLibrary::Open( L );
 }

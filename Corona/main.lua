@@ -1,5 +1,5 @@
 -- Require the iTunes library
-local iTunes = require( "CoronaProvider.plugin.iTunes" )
+local iTunes = require( "plugin.iTunes" )
 local widget = require( "widget" )
 
 -- Hide the status bar
@@ -58,7 +58,9 @@ end
 
 
 -- Function that executes when playback of a song is complete
-local function onPlaybackEnded()
+local function onPlaybackEnded( event )
+	print( "event.name:", event.name, "event.type:", event.type)
+
 	-- Here we play the next song in the mediaItems table, if one exists.
 	print( "Playback has completed!" )
 	
@@ -148,17 +150,13 @@ local function onMediaChosen( event )
 	-- If a song was picked, print it's details
 	if event.data then
 		for i = 1, #event.data do
-			--[[
-			print( "url", event.data[i].url )
-			print( "album artist", event.data[i].albumArtist )
-			print( "album title", event.data[i].albumTitle )
-			print( "song title", event.data[i].songTitle )
-			print( "performing artist", event.data[i].performingArtist )
-			print( "composer", event.data[i].composer )
-			print( "genre", event.data[i].genre )
-			print( "lyrics", event.data[i].lyrics )
-			print( "podcast title", event.data[i].podcastTitle )
-			--]]
+			-- Loop through each table contained in event.data
+			for k, v in pairs( event.data ) do
+				-- Print out each table entry's key/value pairs
+				for kk, vv in pairs( v ) do
+					print( kk, ":", vv )
+				end
+			end
 			
 			-- Copy the song table from event.data
 			mediaItems[i] = event.data[i]

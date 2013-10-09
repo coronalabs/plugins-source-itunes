@@ -12,6 +12,8 @@
 
 // This corresponds to the name of the library, e.g. [Lua] require "plugin.library"
 // where the '.' is replaced with '_'
-CORONA_EXPORT int luaopen_CoronaProvider_plugin_iTunes( lua_State *L );
+CORONA_EXPORT int luaopen_plugin_iTunes( lua_State *L );
+
+
 
 #endif // _iTunesLibrary_H__
