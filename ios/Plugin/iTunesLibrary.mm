@@ -177,7 +177,7 @@ iTunesLibrary::Initialize( void *platformContext )
 int
 iTunesLibrary::play( lua_State *L )
 {
-	// Free the refrence
+	// Free the reference
 	lua_unref( audioDelegate.L, audioDelegate.callbackRef );
 	
 	// Set the callback reference to 0
@@ -293,10 +293,10 @@ showMediaPicker( UIViewController *controller, MediaDelegate *delegate, bool all
 int
 iTunesLibrary::show( lua_State *L )
 {
-	// Just print a warning message for the iPhone simulator (The plugin is only supported on device)
-	#if TARGET_IPHONE_SIMULATOR
-		printf( "WARNING: This plugin is not supported on the iPhone/iPad simulator, please build for device\n" );
-	#else
+// Just print a warning message for the iPhone simulator (The plugin is only supported on device)
+#if TARGET_IPHONE_SIMULATOR
+	printf( "WARNING: This plugin is not supported on the iPhone/iPad simulator, please build for device\n" );
+#else
 	using namespace Corona;
 
 	Self *context = ToLibrary( L );
@@ -354,7 +354,7 @@ iTunesLibrary::show( lua_State *L )
 		[appViewController presentModalViewController:mediaPicker animated:YES];
 		[mediaPicker release];
 	}
-	#endif
+#endif
 	
 	return 0;
 }
@@ -488,7 +488,7 @@ iTunesLibrary::show( lua_State *L )
 		// Call the onComplete function
 		Corona::Lua::DoCall( self.L, 1, 1 );
 		
-		// Free the refrence
+		// Free the reference
 		lua_unref( self.L, self.callbackRef );
 	}
 	
@@ -521,7 +521,7 @@ iTunesLibrary::show( lua_State *L )
 		// Call the onComplete function
 		Corona::Lua::DoCall( self.L, 1, 1 );
 		
-		// Free the refrence
+		// Free the reference
 		lua_unref( self.L, self.callbackRef );
 	}
 
