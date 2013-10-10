@@ -198,7 +198,7 @@ iTunesLibrary::play( lua_State *L )
 	// Set the song 
 	NSString *luaSongURL = [NSString stringWithUTF8String:lua_tostring( L, -1 )];
 	NSURL *songURL = [NSURL URLWithString:luaSongURL];
-	NSError *error;
+	NSError *error = nil;
 	
 	// If the audioPlayer object is valid, stop any current playback
 	if ( nil != audioPlayer )
@@ -211,7 +211,7 @@ iTunesLibrary::play( lua_State *L )
 	audioPlayer.delegate = audioDelegate;
 	
 	// Report the error message to lua
-	if ( error )
+	if ( nil != error )
 	{
 		NSString *theError = [error localizedDescription];
 		luaL_error( L, [theError UTF8String] );
