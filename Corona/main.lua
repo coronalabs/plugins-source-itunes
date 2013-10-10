@@ -1,3 +1,12 @@
+--
+-- Abstract: iTunes plugin sample app
+--
+-- Version: 1.0
+--
+-- Sample code is MIT licensed, see http://www.coronalabs.com/links/code/license
+-- Copyright (C) 2013 Corona Labs Inc. All Rights Reserved.
+--
+
 -- Require the iTunes library
 local iTunes = require( "plugin.iTunes" )
 local widget = require( "widget" )
