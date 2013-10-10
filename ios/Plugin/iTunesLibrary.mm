@@ -205,10 +205,12 @@ iTunesLibrary::play( lua_State *L )
 	{
 		[audioPlayer stop];
 	}
+	
+	// Technically it makes sense to release and nil the audioPlayer here before reinstantiating it, however that results in a crash.
+	// Stackoverflow research indicates that what we are doing is the right approach, and extensive memory testing concluded that we are not leaking any memory.
 		
 	// Initialize the audio player
 	audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:songURL error:&error];
-	audioPlayer.delegate = audioDelegate;
 	
 	// Report the error message to lua
 	if ( nil != error )
@@ -216,11 +218,16 @@ iTunesLibrary::play( lua_State *L )
 		NSString *theError = [error localizedDescription];
 		luaL_error( L, [theError UTF8String] );
 	}
-	
-	// Play the selected item
-	[audioPlayer prepareToPlay];
-	[audioPlayer play];
-	[songURL release];
+	// No error, play the song
+	else
+	{
+		// Assign the delegate
+		audioPlayer.delegate = audioDelegate;
+		// Play the selected item
+		[audioPlayer prepareToPlay];
+		[audioPlayer play];
+		[songURL release];
+	}
 
 	return 0;
 }
