@@ -306,15 +306,23 @@ iTunesLibrary::show( lua_State *L )
 		Self& library = * context;
 		
 		UIViewController *appViewController = library.GetAppViewController();
-		mediaDelegate = [[MediaDelegate alloc] init];
-		audioDelegate = [[AudioDelegate alloc] init];
+		// Initialize the media delegate
+		if ( mediaDelegate == nil )
+		{
+			mediaDelegate = [[MediaDelegate alloc] init];
+		}
+		// Initialize the audio delegate
+		if ( audioDelegate == nil )
+		{
+			audioDelegate = [[AudioDelegate alloc] init];
+		}
 		
 		// Assign the lua state so we can access it from within the audio delegate
 		audioDelegate.L = L;
 		
 		// Assign the lua state so we can access it from within the media delegate
 		mediaDelegate.L = L;
-		
+				
 		// Set the callback reference to 0
 		mediaDelegate.callbackRef = 0;
 		
