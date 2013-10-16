@@ -263,3 +263,18 @@ local showPicker = widget.newButton
 }
 showPicker.x = display.contentCenterX
 showPicker.y = stopButton.y + ( showPicker.contentHeight + 45 )
+
+
+-- Function to return system memory usage
+local function getSystemMemoryUsage()
+	collectgarbage( "collect" )
+	
+	return string.format( "%.03f", collectgarbage( "count" ) / 1000 )
+end
+
+local function printUsage()
+	return print( getSystemMemoryUsage() )
+end
+
+--timer.performWithDelay( 1000, printUsage, 0 )
+
