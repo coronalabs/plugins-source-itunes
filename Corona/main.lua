@@ -99,6 +99,7 @@ local function playSong()
 	
 	-- Play the requested song
 	if #mediaItems >= 1 then
+		iTunes.setVolume( 0.01 )
 		-- Play the song
 		iTunes.play( mediaItems[currentIndex].url, onPlaybackEnded )
 	end
@@ -146,7 +147,7 @@ end
 
 -- Function to check if a song is playing
 local function isSongPlaying()
-	iTunes.isSongPlaying()
+	iTunes.isPlaying()
 end
 
 
@@ -206,6 +207,23 @@ local function showItunesLibrary()
 end
 
 
+local volume = 0.01
+
+local function test()
+	if iTunes.isPlaying() then
+		--print( "lowering volume" )
+		volume = volume + 0.01
+		iTunes.setVolume( volume )
+		
+		if volume < 0.0 then
+			volume = 1.0
+		elseif volume >= 0.09 then
+			print( "volume more than limit" )
+			volume = 0.01
+		end
+	end
+end
+timer.performWithDelay( 1400, test, 0 )
 
 -- Play Button
 playButton = widget.newButton

@@ -69,6 +69,7 @@ class iTunesLibrary
 		static int pause( lua_State *L );
 		static int resume( lua_State *L );
 		static int stop( lua_State *L );
+		static int setVolume( lua_State *L );
 		static int isPlaying( lua_State *L );
 
 	private:
@@ -108,6 +109,7 @@ iTunesLibrary::Open( lua_State *L )
 			{ "pause", pause },
 			{ "resume", resume },
 			{ "stop", stop },
+			{ "setVolume", setVolume },
 			{ "isPlaying", isPlaying },
 			{ NULL, NULL }
 		};
@@ -268,6 +270,20 @@ iTunesLibrary::stop( lua_State *L )
 		[audioPlayer stop];
 	}
 
+	return 0;
+}
+
+// Function to set the media volume
+int
+iTunesLibrary::setVolume( lua_State *L )
+{
+	if ( nil != audioPlayer )
+	{
+		// Enforce number type
+		luaL_checktype( L, -1, LUA_TNUMBER );
+		float volume = luaL_checknumber( L, -1 );
+		[audioPlayer setVolume:volume];
+	}
 	return 0;
 }
 
