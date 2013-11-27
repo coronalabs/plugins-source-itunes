@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30F364AA18454AFE007DCF90 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A484112315114F700074BD57 /* GLKit.framework */; };
+		30F364AC18454B03007DCF90 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30F364AB18454B03007DCF90 /* CoreVideo.framework */; };
 		A447B610165D72FB009EA762 /* AppCoronaDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A447B60F165D72FB009EA762 /* AppCoronaDelegate.mm */; };
 		A447B6671666FD02009EA762 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = A447B6641666FD02009EA762 /* MainWindow-iPad.xib */; };
 		A447B6681666FD02009EA762 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = A447B6651666FD02009EA762 /* MainWindow.xib */; };
@@ -67,6 +69,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		30F364AB18454B03007DCF90 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		A447B60E165D72FB009EA762 /* AppCoronaDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppCoronaDelegate.h; sourceTree = SOURCE_ROOT; };
 		A447B60F165D72FB009EA762 /* AppCoronaDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppCoronaDelegate.mm; sourceTree = SOURCE_ROOT; };
 		A447B6641666FD02009EA762 /* MainWindow-iPad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = "MainWindow-iPad.xib"; path = "CoronaEnterprise/Corona/ios/resource/MainWindow-iPad.xib"; sourceTree = SOURCE_ROOT; };
@@ -120,6 +123,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30F364AC18454B03007DCF90 /* CoreVideo.framework in Frameworks */,
+				30F364AA18454AFE007DCF90 /* GLKit.framework in Frameworks */,
 				A4C2449A1683FA5300C395D1 /* Accounts.framework in Frameworks */,
 				A4C2449B1683FA5300C395D1 /* AdSupport.framework in Frameworks */,
 				A4C2449C1683FA5300C395D1 /* Social.framework in Frameworks */,
@@ -208,6 +213,7 @@
 		A484111C15114F700074BD57 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				30F364AB18454B03007DCF90 /* CoreVideo.framework */,
 				A4C244971683FA5300C395D1 /* Accounts.framework */,
 				A4C244981683FA5300C395D1 /* AdSupport.framework */,
 				A4C244991683FA5300C395D1 /* Social.framework */,
