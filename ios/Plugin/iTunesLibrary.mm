@@ -296,8 +296,9 @@ iTunesLibrary::getVolume( lua_State *L )
 	if ( nil != audioPlayer )
 	{
 		lua_pushnumber( L, [audioPlayer volume] );
+		return 1;
 	}
-	return 1;
+	return 0;
 }
 
 
